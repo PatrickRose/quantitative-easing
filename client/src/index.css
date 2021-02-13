@@ -1,0 +1,14 @@
+#root {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+.content {
+    flex: 1;
+}
+
+.footer {
+    background-color: lightgray;
+    border-top: grey solid 1px;
+}
