@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders without crashing 1`] = `
+exports[`makes the submit button disabled if not active 1`] = `
 <form
   onSubmit={[Function]}
 >
@@ -16,6 +16,7 @@ exports[`renders without crashing 1`] = `
     <input
       aria-invalid="false"
       className="form-control "
+      disabled={true}
       id="test-foo"
       name="test-foo"
       onChange={[Function]}
@@ -35,6 +36,7 @@ exports[`renders without crashing 1`] = `
     <input
       aria-invalid="false"
       className="form-control "
+      disabled={true}
       id="test-bar"
       name="test-bar"
       onChange={[Function]}
@@ -43,6 +45,60 @@ exports[`renders without crashing 1`] = `
     />
   </div>
   <button
+    disabled={true}
+    type="submit"
+  >
+    Submit caption
+  </button>
+</form>
+`;
+
+exports[`renders without crashing 1`] = `
+<form
+  onSubmit={[Function]}
+>
+  <div
+    aria-live="polite"
+    className="form-group"
+  >
+    <label
+      htmlFor="test-foo"
+    >
+      Test form field
+    </label>
+    <input
+      aria-invalid="false"
+      className="form-control "
+      disabled={false}
+      id="test-foo"
+      name="test-foo"
+      onChange={[Function]}
+      type="text"
+      value=""
+    />
+  </div>
+  <div
+    aria-live="polite"
+    className="form-group"
+  >
+    <label
+      htmlFor="test-bar"
+    >
+      Second form field
+    </label>
+    <input
+      aria-invalid="false"
+      className="form-control "
+      disabled={false}
+      id="test-bar"
+      name="test-bar"
+      onChange={[Function]}
+      type="text"
+      value=""
+    />
+  </div>
+  <button
+    disabled={false}
     type="submit"
   >
     Submit caption

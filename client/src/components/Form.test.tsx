@@ -18,8 +18,25 @@ const nullSubmit = () => true
 
 it('renders without crashing', () => {
     const tree = renderer
-      .create(<Form fields={fields} submit={nullSubmit} submitCaption={submitCaption} overrideID='test' />)
+      .create(<Form active={true} fields={fields} submit={nullSubmit} submitCaption={submitCaption} overrideID='test' />)
       .toJSON();
+    expect(tree).toMatchSnapshot();
+});
+
+it('makes the submit button active if active', () => {
+    render(<Form active={true} fields={fields} submit={nullSubmit} submitCaption={submitCaption} />);
+
+    expect(screen.getByRole('button')).not.toHaveAttribute('disabled');
+})
+
+it('makes the submit button disabled if not active', () => {
+    render(<Form active={false} fields={fields} submit={nullSubmit} submitCaption={submitCaption} />);
+
+    expect(screen.getByRole('button')).toHaveAttribute('disabled');
+
+    const tree = renderer
+        .create(<Form active={false} fields={fields} submit={nullSubmit} submitCaption={submitCaption} overrideID='test' />)
+        .toJSON();
     expect(tree).toMatchSnapshot();
 });
 
@@ -32,7 +49,7 @@ it('triggers validation', async () => {
            validator: validator,
        }
    }
-    render(<Form fields={fieldValidation} submit={nullSubmit} submitCaption={submitCaption} />);
+    render(<Form active={true} fields={fieldValidation} submit={nullSubmit} submitCaption={submitCaption} />);
 
     fireEvent.click(screen.getByRole('button'))
 
@@ -45,3 +62,13 @@ it('triggers validation', async () => {
     inputEl.toHaveAttribute('aria-errormessage');
 
 });
+
+it('calls the submit callback when successful', () => {
+    const submitFn = jest.fn();
+
+    render(<Form active={true} fields={fields} submit={submitFn} submitCaption={submitCaption} />);
+
+    fireEvent.click(screen.getByRole('button'))
+
+    expect(submitFn).toHaveBeenCalled();
+})

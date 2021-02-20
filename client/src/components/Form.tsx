@@ -15,7 +15,8 @@ type FormProps<T extends FormFields> = {
     submit: (values: { [P in keyof T]?: string }) => boolean,
     submitCaption: string,
     overrideID?: string,
-    fields: T
+    fields: T,
+    active: boolean
 }
 
 type StateField = {
@@ -28,6 +29,52 @@ type FormState<T extends FormFields> = {
     fields: {
         [P in keyof T]?: StateField
     }
+}
+
+type FormFieldElementProps = {
+    caption: string,
+    fieldName: string,
+    validationMessage?: string,
+    value: string,
+    active: boolean,
+    validationID: string,
+    onChange: (e: ChangeEvent<HTMLInputElement>) => void
+}
+
+function FormFieldElement(props: FormFieldElementProps) {
+    const {
+        caption,
+        active,
+        value,
+        fieldName,
+        validationMessage,
+        onChange,
+        validationID
+    } = props;
+
+    const isValid = validationMessage === undefined;
+
+    const validationElement = isValid
+        ? undefined
+        : <span id={validationID}>
+                    {validationMessage}
+                </span>
+
+    return <div className="form-group" aria-live="polite">
+        <label htmlFor={fieldName}>{caption}</label>
+        <input
+            name={fieldName}
+            id={fieldName}
+            type="text"
+            className={`form-control ${isValid ? '' : 'is-invalid'}`}
+            value={value}
+            onChange={onChange}
+            aria-invalid={isValid ? 'false' : 'true'}
+            disabled={!active}
+            aria-errormessage={isValid ? undefined : validationID}
+        />
+        {validationElement}
+    </div>
 }
 
 export default class Form<T extends FormFields> extends Component<FormProps<T>, FormState<T>> {
@@ -58,6 +105,7 @@ export default class Form<T extends FormFields> extends Component<FormProps<T>, 
         const fieldVals = this.state.fields;
 
         const fields = [];
+        const onChange = (e: ChangeEvent<HTMLInputElement>) => this.handleInputChange(e);
 
         for (const field in this.props.fields) {
             if (!this.props.fields.hasOwnProperty(field)) {
@@ -65,41 +113,36 @@ export default class Form<T extends FormFields> extends Component<FormProps<T>, 
             }
 
             const fieldDef = this.props.fields[field];
-            const value = fieldVals[field]?.value;
-            const validationMsg = fieldVals[field]?.validation;
+            let value: string = '';
+
+            let fieldVal = fieldVals[field];
+
+            if (fieldVal !== undefined) {
+                value = fieldVal.value;
+            }
+
+            const validationMessage = fieldVal?.validation;
 
             const name = `${this.state.id}-${field}`;
             const validationID = `${name}-validation`;
 
-            const validationElement = validationMsg === undefined
-                ? undefined
-                : <span id={validationID} role="">
-                    {validationMsg}
-                </span>
-
-            const hasValidationMessage = validationMsg === undefined;
-
             fields.push(
-                <div className="form-group" key={field} aria-live={"polite"}>
-                    <label htmlFor={name}>{fieldDef.caption}</label>
-                    <input
-                        name={name}
-                        id={name}
-                        type="text"
-                        className={`form-control ${hasValidationMessage ? '' : 'is-invalid'}`}
-                        value={value}
-                        onChange={(e) => this.handleInputChange(e)}
-                        aria-invalid={hasValidationMessage ? 'false' : 'true'}
-                        aria-errormessage={hasValidationMessage ? undefined : validationID}
-                    />
-                    {validationElement}
-                </div>
+                <FormFieldElement
+                    fieldName={name}
+                    caption={fieldDef.caption}
+                    validationMessage={validationMessage}
+                    value={value}
+                    active={this.props.active}
+                    validationID={validationID}
+                    onChange={onChange}
+                    key={field}
+                />
             )
         }
 
         return <form onSubmit={this.onSubmit.bind(this)}>
             {fields}
-            <button type="submit">{this.props.submitCaption}</button>
+            <button type="submit" disabled={!this.props.active}>{this.props.submitCaption}</button>
         </form>
     }
 
@@ -116,7 +159,7 @@ export default class Form<T extends FormFields> extends Component<FormProps<T>, 
                 continue;
             }
 
-            if (name == field) {
+            if (name === field) {
                 stateToSet[field] = {value};
                 break;
             }
